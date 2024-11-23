@@ -10,6 +10,7 @@ database
   .then(() => console.log("Connected to database successfully"))
   .catch((error) => console.error("Database connection failed:", error));
 
+  app.use(express.static('public'))
   app.use('/uploads', express.static('uploads'));
   
   app.use(express.json());
