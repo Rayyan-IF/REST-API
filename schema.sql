@@ -14,8 +14,7 @@ CREATE TABLE banners (
     banner_name VARCHAR (100) NOT NULL,
     banner_image VARCHAR (255) NOT NULL,
     description VARCHAR (256),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE services (
@@ -32,7 +31,6 @@ CREATE TABLE balances (
     balance_id SERIAL PRIMARY KEY,
     user_id INTEGER UNIQUE NOT NULL,
     balance NUMERIC(15, 0) NOT NULL DEFAULT 0,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_balances FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
