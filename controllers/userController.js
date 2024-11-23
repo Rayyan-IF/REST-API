@@ -7,25 +7,40 @@ import { createResponse } from "../utils/response.js";
 import { STATUS_CODE } from "../config/statusCode.js";
 
 export const registration = async (req, res) => {
+  const client = await database.connect()
   try {
+    await client.query('BEGIN')
+
     const { first_name, last_name, email, password } = req.body;
 
-    const isUsedEmail = await database.query('SELECT email FROM users WHERE email = $1', [email])
+    const isUsedEmail = await client.query('SELECT email FROM users WHERE email = $1', [email])
 
-    if (isUsedEmail.rowCount > 0) return res.status(400).json(createResponse(STATUS_CODE.BAD_REQUEST, "Email sudah terdaftar"))
+    if (isUsedEmail.rowCount > 0) {
+      client.query("ROLLBACK")
+      return res.status(400).json(createResponse(STATUS_CODE.BAD_REQUEST, "Email sudah terdaftar"))
+    }
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await database.query(
-      "INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4)",
+    const newUser = await client.query(
+      "INSERT INTO users (email, password, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING user_id",
       [email, hashedPassword, first_name, last_name]
     );
 
+    const { user_id } = newUser.rows[0]
+    
+    // Set balance data for new user
+    await client.query("INSERT INTO balances (user_id) VALUES ($1)", [user_id])
+    
+    await client.query('COMMIT')
     res.status(200).json(createResponse(STATUS_CODE.SUCCESS, "Registrasi berhasil silahkan login"));
   } catch (error) {
     console.error(error)
+    await client.query("ROLLBACK")
     res.status(500).json(createResponse(STATUS_CODE.INTERNAL_SERVER_ERROR, "Terjadi kesalahan saat proses registrasi"));
+  } finally {
+    client.release()
   }
 };
 
