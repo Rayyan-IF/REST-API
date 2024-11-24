@@ -11,6 +11,7 @@ export const verifyToken = (req, res, next) => {
   
   jsonwebtoken.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode) => {
     if (err) return res.status(401).json(createResponse(STATUS_CODE.UNAUTHORIZED, INVALID_TOKEN_MESSAGE))
+    req.user_id = decode.user_id
     req.email = decode.email
     next()
   })

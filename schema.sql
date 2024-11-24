@@ -22,7 +22,7 @@ CREATE TABLE services (
     service_code VARCHAR (255) UNIQUE NOT NULL,
     service_name VARCHAR (255) NOT NULL,
     service_icon VARCHAR (255),
-    service_tariff NUMERIC (15, 0) NOT NULL,
+    service_tariff NUMERIC (15, 0),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -39,9 +39,11 @@ CREATE TYPE trx_type AS ENUM ('TOPUP', 'PAYMENT');
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
+    service_id INTEGER NOT NULL,
     transaction_type trx_type NOT NULL,
     invoice_number VARCHAR(50) UNIQUE NOT NULL,
     total_amount NUMERIC(15, 0) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_transactions FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    CONSTRAINT fk_user_transactions FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_service_transactions FOREIGN KEY (service_id) REFERENCES services(service_id) ON DELETE CASCADE
 );

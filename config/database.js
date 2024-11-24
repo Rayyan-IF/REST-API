@@ -3,7 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { Pool } = pkg;
+const { Pool, types } = pkg;
+
+// Convert numeric type value from DB -> JS Float
+types.setTypeParser(1700, (value) => parseFloat(value))
 
 export const database = new Pool({
   host: process.env.DB_HOST,
